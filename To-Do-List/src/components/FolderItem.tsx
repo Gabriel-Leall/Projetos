@@ -1,7 +1,6 @@
 // src/components/FolderItem.tsx
 import React from 'react';
-import type { Folder } from '../types'; // Certifica-te que o caminho para 'types' está correto
-                                      // Se FolderItem.tsx está em src/components/, ../types está correto.
+import type { Folder } from '../types'; 
 
 interface FolderItemProps {
   folder: Folder;

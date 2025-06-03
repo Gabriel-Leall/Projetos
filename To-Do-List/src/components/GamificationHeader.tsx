@@ -8,11 +8,9 @@ const GamificationHeader: React.FC = () => {
 
   return (
     // Container principal do "badge" de gamificação/perfil
-    // Removemos o justify-between se este for um bloco mais contido
     <div className="bg-sky-700 text-white p-3 rounded-lg shadow-md flex items-center space-x-4">
       {/* Placeholder para o Perfil do Usuário */}
       <div className="flex-shrink-0 w-12 h-12 bg-sky-500 rounded-full flex items-center justify-center">
-        {/* Idealmente, aqui iria um ícone de usuário ou a foto do perfil */}
         <span className="text-xl font-bold">U</span> 
       </div>
 
