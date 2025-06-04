@@ -27,4 +27,5 @@ export interface AppState {
   folders: Folder[];
   tasks: Task[];
   gamification: GamificationState;
+  activeFolderId: string | null; 
 }

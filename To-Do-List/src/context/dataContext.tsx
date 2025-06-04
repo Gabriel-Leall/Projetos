@@ -2,8 +2,8 @@
 import { createContext, useReducer, useContext } from "react";
 import type { ReactNode, Dispatch } from "react";
 import type { AppState } from "../types";
-import { dataReducer } from "./dataReducer";
-import type { Action } from "./dataReducer";
+import { dataReducer } from "./DataReducer";
+import type { Action } from "./DataReducer";
 import { v4 as uuidv4 } from "uuid";
 
 // Estado inicial da nossa aplicação (com alguns dados de exemplo)
@@ -37,9 +37,10 @@ const initialState: AppState = {
   folders: initialFolders,
   tasks: initialTasks,
   gamification: {
-    totalPoints: 10,
-    level: 1,
+    totalPoints: 0, 
+    level: 1,      
   },
+  activeFolderId: initialFolders.length > 0 ? initialFolders[0].id : null, 
 };
 
 // Criamos o Contexto

@@ -1,21 +1,28 @@
+// src/App.tsx
 import { useData } from './context/DataContext';
-import FolderList from './components/FolderList'; 
+import FolderList from './components/FolderList';
 import GamificationHeader from './components/GamificationHeader';
-import TaskList from './components/TaskList'; 
-import AddFolderForm from './components/AddFolderForm'; 
+import TaskList from './components/TaskList';
+import AddFolderForm from './components/AddFolderForm';
 import AddTaskForm from './components/AddTaskForm';
 
 function App() {
-  const { state } = useData();
+  const { state } = useData(); // state agora contém activeFolderId atualizado pelo FolderItem
 
-  // Usaremos o ID da pasta "Livros" como exemplo
-  // No futuro, este ID virá da pasta que o utilizador selecionou
-  const activeFolderId = state.folders.length > 1 ? state.folders[1].id : null;
-  const activeFolderName = state.folders.length > 1 ? state.folders[1].name : 'Pasta';
+  // Passo A: Identificar a Pasta Ativa e suas Tarefas
+  // 1. Encontra o objeto da pasta ativa para podermos usar o seu nome
+  const activeFolder = state.activeFolderId
+    ? state.folders.find(f => f.id === state.activeFolderId)
+    : null; // Se não houver activeFolderId, activeFolder será null
+  
+  // Define o nome a ser exibido. Se nenhuma pasta estiver ativa, mostra uma mensagem padrão.
+  const activeFolderName = activeFolder ? activeFolder.name : "Nenhuma pasta selecionada";
 
-  const tasksDaPastaAtiva = activeFolderId
-    ? state.tasks.filter(task => task.categoryId === activeFolderId)
-    : [];
+  // 2. Filtra as tarefas que pertencem à pasta ativa
+  // Se activeFolderId não for null, filtra. Senão, retorna um array vazio.
+  const tasksOfActiveFolder = state.activeFolderId
+    ? state.tasks.filter(task => task.categoryId === state.activeFolderId)
+    : []; 
 
   return (
     <div className="p-6 bg-slate-100 min-h-screen">
@@ -32,15 +39,20 @@ function App() {
             <h2 className="text-2xl font-semibold text-slate-800 mb-3">
               Pastas
             </h2>
-            <FolderList folders={state.folders} />
+            {/* FolderList já usa FolderItems que agora sabem qual está ativo e como se atualizar */}
+            <FolderList folders={state.folders} /> 
             <AddFolderForm />
           </section>
         </aside>
 
         <div className="flex-1"> {/* Área principal para tarefas */}
-          <TaskList tasks={tasksDaPastaAtiva} title={`Tarefas de "${activeFolderName}"`} />
-          {/* Só mostra o formulário de adicionar tarefa se houver uma pasta ativa (para passar o ID) */}
-          {activeFolderId && <AddTaskForm categoryId={activeFolderId} />} 
+          {/* Passo B: Passar as Tarefas Corretas e o Nome Correto para o TaskList */}
+          <TaskList 
+            tasks={tasksOfActiveFolder} 
+            title={activeFolder ? `Tarefas de "${activeFolderName}"` : "Selecione uma Pasta"} 
+          />
+          {/* Passo C: Passar o ID Correto para AddTaskForm e só renderizar se uma pasta estiver ativa */}
+          {state.activeFolderId && <AddTaskForm categoryId={state.activeFolderId} />}
         </div>
       </main>
     </div>

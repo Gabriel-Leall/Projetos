@@ -1,50 +1,77 @@
 // src/components/TaskItem.tsx
-import React from 'react';
-import type { Task } from '../types';       
-import SubTaskItem from './SubTaskItem';   
-import ProgressBar from './ProgressBar';   
+import React, { useState } from 'react'; // <<< Adiciona useState
+import type { Task } from '../types';
+import SubTaskItem from './SubTaskItem';
+import ProgressBar from './ProgressBar';
+import { useData } from '../context/DataContext'; // <<< Adiciona useData
 
-// Define as props que o TaskItem espera receber
 interface TaskItemProps {
   task: Task;
 }
 
 const TaskItem: React.FC<TaskItemProps> = ({ task }) => {
-  // Lógica para calcular a percentagem de progresso das sub-tarefas
+  const { dispatch } = useData(); // Pega o dispatch do contexto
+  const [newSubTaskText, setNewSubTaskText] = useState(''); // Estado para o input da nova sub-tarefa
+
   const completedSubtasks = task.subTasks.filter(st => st.completed).length;
   const totalSubtasks = task.subTasks.length;
-  // Evita divisão por zero se não houver sub-tarefas
   const progressPercentage = totalSubtasks > 0 ? (completedSubtasks / totalSubtasks) * 100 : 0;
+
+  const handleAddSubTask = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (!newSubTaskText.trim()) return;
+
+    dispatch({
+      type: 'ADD_SUBTASK',
+      payload: { text: newSubTaskText, taskId: task.id },
+    });
+    setNewSubTaskText(''); // Limpa o input
+  };
 
   return (
     <div className="p-4 mb-3 bg-white border border-slate-200 rounded-lg shadow hover:shadow-md transition-shadow">
-      {/* Título da Tarefa */}
       <h3 className="text-lg font-semibold text-slate-700 mb-2">{task.title}</h3>
 
-      {/* Secção de Sub-tarefas (só aparece se houver sub-tarefas) */}
       {task.subTasks && task.subTasks.length > 0 && (
         <div className="mt-3 pt-3 pl-4 border-t border-slate-200">
           <ul className="list-none p-0 space-y-1">
             {task.subTasks.map(subTask => (
-              <SubTaskItem key={subTask.id} subTask={subTask} />
+              <SubTaskItem key={subTask.id} subTask={subTask}  taskId={task.id}/>
             ))}
           </ul>
         </div>
       )}
 
-      {/* Barra de Progresso (só aparece se a tarefa tiver sub-tarefas) */}
+      {/* Formulário para adicionar nova sub-tarefa */}
+      <form onSubmit={handleAddSubTask} className="mt-3 pt-2 pl-4 border-t border-dashed border-slate-300">
+        <div className="flex items-center space-x-2">
+          <input
+            type="text"
+            className="flex-grow p-1.5 border border-slate-300 rounded-md text-sm focus:ring-sky-500 focus:border-sky-500"
+            value={newSubTaskText}
+            onChange={(e) => setNewSubTaskText(e.target.value)}
+            placeholder="Nova sub-tarefa..."
+          />
+          <button
+            type="submit"
+            className="px-3 py-1.5 bg-emerald-500 text-white text-sm rounded-md hover:bg-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-1"
+          >
+            +
+          </button>
+        </div>
+      </form>
+
       {totalSubtasks > 0 && (
-        <div className="mt-4"> 
+        <div className="mt-4">
           <ProgressBar 
             percentage={progressPercentage} 
             barColor="bg-green-500"
-            height="h-2"        
+            height="h-2"
           />
         </div>
       )}
 
-      {/* Pontos da Tarefa */}
-      <p className="text-xs text-slate-400 mt-2 text-right"> {/* Estilo para os pontos */}
+      <p className="text-xs text-slate-400 mt-2 text-right">
         Vale: {task.points} pontos
       </p>
     </div>
