@@ -9,7 +9,10 @@ export type Action =
   | { type: 'ADD_TASK'; payload: { title: string; categoryId: string } }
   | { type: 'ADD_SUBTASK'; payload: { text: string; taskId: string } }
   | { type: 'SET_ACTIVE_FOLDER'; payload: { folderId: string | null } }
-  | { type: 'TOGGLE_SUBTASK'; payload: { taskId: string; subTaskId: string } };
+  | { type: 'TOGGLE_SUBTASK'; payload: { taskId: string; subTaskId: string } }
+  | { type: 'REMOVE_SUBTASK'; payload: { taskId: string; subTaskId: string } }
+  | { type: 'REMOVE_TASK'; payload: { taskId: string } }
+  | { type: 'REMOVE_FOLDER'; payload: { folderId: string } };
 
 // O Reducer principal
 export const dataReducer = (state: AppState, action: Action): AppState => {
@@ -134,6 +137,34 @@ export const dataReducer = (state: AppState, action: Action): AppState => {
         tasks: updatedTasks,
       };
     }
+    
+    case 'REMOVE_SUBTASK': {
+      const { taskId, subTaskId } = action.payload;
+      if (!taskId || !subTaskId) {
+        console.warn('REMOVE_SUBTASK: taskId ou subTaskId em falta.');
+        return state;
+      }
+
+      const updatedTasks = state.tasks.map(task => {
+        if (task.id === taskId) {
+          // Esta é a tarefa pai da sub-tarefa que queremos remover
+          // Cria um novo array de sub-tarefas, filtrando para excluir a sub-tarefa com o ID fornecido
+          const updatedSubTasks = task.subTasks.filter(
+            subTask => subTask.id !== subTaskId
+          );
+          // Retorna a tarefa pai com a lista de sub-tarefas atualizada
+          return { ...task, subTasks: updatedSubTasks };
+        }
+        return task; // Mantém as outras tarefas como estão
+      });
+
+      return {
+        ...state,
+        tasks: updatedTasks,
+      };
+    }
+
+
     case 'REMOVE_TASK': {
       if (!action.payload.taskId) {
         console.warn('REMOVE_TASK: taskId em falta.');
@@ -148,6 +179,38 @@ export const dataReducer = (state: AppState, action: Action): AppState => {
       return {
         ...state,
         tasks: filteredTasks,
+      };
+    }
+    case 'REMOVE_FOLDER': {
+      const { folderId } = action.payload;
+      if (!folderId) {
+        console.warn('REMOVE_FOLDER: folderId em falta.');
+        return state;
+      }
+      
+      // 1. Cria um novo array de pastas, excluindo a que foi removida
+      const updatedFolders = state.folders.filter(
+        folder => folder.id !== folderId
+      );
+
+      // 2. Cria um novo array de tarefas, excluindo as que pertenciam à pasta removida
+      const updatedTasks = state.tasks.filter(
+        task => task.categoryId !== folderId
+      );
+
+      // 3. Lógica para lidar com a pasta ativa se ela for a removida
+      let newActiveFolderId = state.activeFolderId;
+      if (state.activeFolderId === folderId) {
+        // Se a pasta removida era a ativa, define a primeira da NOVA lista como ativa (ou null se não sobrarem pastas)
+        newActiveFolderId = updatedFolders.length > 0 ? updatedFolders[0].id : null;
+      }
+
+      // 4. Retorna o novo estado completamente atualizado
+      return {
+        ...state,
+        folders: updatedFolders,
+        tasks: updatedTasks,
+        activeFolderId: newActiveFolderId,
       };
     }
 
