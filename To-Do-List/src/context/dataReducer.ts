@@ -6,7 +6,7 @@ import { v4 as uuidv4 } from 'uuid';
 export type Action =
   | { type: 'DO_NOTHING' } // Ação de exemplo, pode ser removida se não for usada
   | { type: 'ADD_FOLDER'; payload: { name: string } }
-  | { type: 'ADD_TASK'; payload: { title: string; categoryId: string } }
+  | { type: 'ADD_TASK'; payload: { title: string; categoryId: string, dueDate: string | null } }
   | { type: 'ADD_SUBTASK'; payload: { text: string; taskId: string } }
   | { type: 'SET_ACTIVE_FOLDER'; payload: { folderId: string | null } }
   | { type: 'TOGGLE_SUBTASK'; payload: { taskId: string; subTaskId: string } }
@@ -58,7 +58,7 @@ export const dataReducer = (state: AppState, action: Action): AppState => {
         subTasks: [], // Começa com uma lista de sub-tarefas vazia
         points: 0,    // Começa com 0 pontos
         completed: false, // Novas tarefas começam como não completas
-        // dueDate: undefined, // Opcional, podemos adicionar depois
+        dueDate: action.payload.dueDate, 
       };
       console.log('Tarefa a ser adicionada:', newTask);
       // Retorna um NOVO objeto de estado

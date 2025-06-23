@@ -23,17 +23,19 @@ const getInitialState = (): AppState => {
       categoryId: "1",
       points: 5,
       completed: false,
+      dueDate: null, 
     },
     {
       id: "t2",
       title: 'Ler "O Senhor dos Anéis"',
       subTasks: [
-        { id: "st1", text: "Ler Capítulo 1", completed: true },
-        { id: "st2", text: "Ler Capítulo 2", completed: false },
+        { id: "st1", text: "Ler Capítulo 1", completed: true},
+        { id: "st2", text: "Ler Capítulo 2", completed: false},
       ],
       categoryId: "2",
       points: 25,
       completed: false,
+      dueDate: "2025-12-31", // Data de vencimento opcional
     },
   ];
 
