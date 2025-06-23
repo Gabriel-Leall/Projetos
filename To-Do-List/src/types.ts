@@ -11,6 +11,7 @@ export interface Task {
   dueDate?: string;
   categoryId: string;
   points: number; // Vamos começar com 0 e adicionar depois
+  completed?: boolean; 
 }
 
 export interface Folder {

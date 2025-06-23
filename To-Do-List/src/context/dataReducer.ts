@@ -54,6 +54,7 @@ export const dataReducer = (state: AppState, action: Action): AppState => {
         categoryId: action.payload.categoryId,
         subTasks: [], // Começa com uma lista de sub-tarefas vazia
         points: 0,    // Começa com 0 pontos
+        completed: false, // Novas tarefas começam como não completas
         // dueDate: undefined, // Opcional, podemos adicionar depois
       };
       console.log('Tarefa a ser adicionada:', newTask);

@@ -20,6 +20,7 @@ const initialTasks = [
     subTasks: [],
     categoryId: initialFolders[0].id,
     points: 0,
+    completed: false,
   },
   {
     id: uuidv4(),
@@ -30,6 +31,7 @@ const initialTasks = [
     ],
     categoryId: initialFolders[1].id,
     points: 10,
+    completed: false
   },
 ];
 
