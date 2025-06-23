@@ -134,6 +134,22 @@ export const dataReducer = (state: AppState, action: Action): AppState => {
         tasks: updatedTasks,
       };
     }
+    case 'REMOVE_TASK': {
+      if (!action.payload.taskId) {
+        console.warn('REMOVE_TASK: taskId em falta.');
+        return state;
+      }
+      
+      // Cria um novo array de tarefas, filtrando para excluir a tarefa com o ID fornecido
+      const filteredTasks = state.tasks.filter(
+        task => task.id !== action.payload.taskId
+      );
+
+      return {
+        ...state,
+        tasks: filteredTasks,
+      };
+    }
 
     case 'DO_NOTHING':
         return state;

@@ -27,6 +27,13 @@ const TaskItem: React.FC<TaskItemProps> = ({ task }) => {
     });
     setNewSubTaskText(''); // Limpa o input
   };
+  
+  const handleRemoveTask = () => {
+    // Pergunta ao utilizador se tem a certeza - boa prática de UX!
+    if (window.confirm(`Tem a certeza que deseja remover a tarefa "${task.title}"?`)) {
+      dispatch({ type: 'REMOVE_TASK', payload: { taskId: task.id } });
+    }
+  };
 
   return (
     <div className="p-4 mb-3 bg-white border border-slate-200 rounded-lg shadow hover:shadow-md transition-shadow">
