@@ -113,30 +113,65 @@ export const dataReducer = (state: AppState, action: Action): AppState => {
     case 'TOGGLE_SUBTASK': { // Início do bloco do case
       // Validação
       if (!action.payload.taskId || !action.payload.subTaskId) {
-        console.warn('TOGGLE_SUBTASK: taskId ou subTaskId em falta.');
-        return state; // Retorno antecipado se houver erro
-      }
-
-      // Lógica para encontrar e atualizar a tarefa e sub-tarefa
-      const updatedTasks = state.tasks.map(task => {
-        if (task.id === action.payload.taskId) {
-          const updatedSubTasks = task.subTasks.map(subTask => {
-            if (subTask.id === action.payload.subTaskId) {
-              return { ...subTask, completed: !subTask.completed };
-            }
-            return subTask;
-          });
-          return { ...task, subTasks: updatedSubTasks };
-        }
-        return task;
-      });
-
-    // Este é o retorno principal para este case, que impede o fallthrough
-      return { 
-        ...state,
-        tasks: updatedTasks,
-      };
+      console.warn('TOGGLE_SUBTASK: taskId ou subTaskId em falta.');
+      return state;
     }
+
+    let taskPointsChanged = 0;
+
+    const updatedTasks = state.tasks.map(task => {
+      if (task.id === action.payload.taskId) {
+        const wasTaskCompletedBefore = task.completed;
+
+        const updatedSubTasks = task.subTasks.map(subTask => {
+          if (subTask.id === action.payload.subTaskId) {
+            return { ...subTask, completed: !subTask.completed };
+          }
+          return subTask;
+        });
+
+        const areAllSubTasksNowCompleted = updatedSubTasks.length > 0 && updatedSubTasks.every(st => st.completed);
+        
+        if (!wasTaskCompletedBefore && areAllSubTasksNowCompleted) {
+          taskPointsChanged = task.points;
+          console.log(`Tarefa "${task.title}" concluída! +${task.points} pontos!`);
+        }
+        
+        // (Opcional) Lógica para remover pontos se a tarefa for "descompletada"
+        else if (wasTaskCompletedBefore && !areAllSubTasksNowCompleted) {
+            // Vamos assumir que, uma vez ganhos, os pontos não são perdidos para simplificar.
+            // Mas se quiséssemos, a lógica seria: taskPointsChanged = -task.points;
+        }
+
+        return { ...task, subTasks: updatedSubTasks, completed: areAllSubTasksNowCompleted };
+      }
+      return task;
+    });
+
+    // Calcula o novo total de pontos
+    const newTotalPoints = state.gamification.totalPoints + taskPointsChanged;
+
+    // Regra: A cada 100 pontos, sobe 1 nível. O nível base é 1.
+    const newLevel = 1 + Math.floor(newTotalPoints / 100);
+
+    // Se o nível mudou, podemos dar um feedback!
+    if (newLevel > state.gamification.level) {
+      console.log(`🎉 LEVEL UP! Bem-vindo ao Nível ${newLevel}! 🎉`);
+    }
+
+    // Atualiza o estado de gamificação com os novos pontos E o novo nível
+    const updatedGamificationState = {
+      ...state.gamification,
+      totalPoints: newTotalPoints,
+      level: newLevel, // <<< Atualiza o nível
+    };
+
+    return {
+      ...state,
+      tasks: updatedTasks,
+      gamification: updatedGamificationState, // Usa o estado de gamificação atualizado
+    };
+  }
     
     case 'REMOVE_SUBTASK': {
       const { taskId, subTaskId } = action.payload;

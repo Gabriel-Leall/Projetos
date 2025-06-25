@@ -60,7 +60,7 @@ const TaskItem: React.FC<TaskItemProps> = ({ task }) => {
       return 'text-red-600 font-bold'; // Atrasado
     }
     if (diffDays === 0) {
-      return 'text-orange-600 font-semibold'; // Para hoje (usei laranja para diferenciar de atrasado)
+      return 'text-orange-600 font-semibold'; // Hoje
     }
     if (diffDays <= 7) {
       return 'text-amber-600 font-semibold'; // Para a próxima semana
